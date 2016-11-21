@@ -1,0 +1,51 @@
+---
+- name: Pull PostgreSQL image
+  docker_image:
+    name: '{{ postgres_docker_image }}'
+    tag: '{{ postgres_docker_image_tag }}'
+
+- name: Create data container
+  docker_container:
+    name: '{{ postgres_container_name }}-data'
+    image: '{{ postgres_docker_image }}:{{ postgres_docker_image_tag }}'
+    state: present
+
+- name: Run PostgreSQL container
+  docker_container:
+    name: '{{ postgres_container_name }}'
+    image: '{{ postgres_docker_image }}:{{ postgres_docker_image_tag }}'
+    restart_policy: always
+    state: started
+    volumes_from:
+      - '{{ postgres_container_name }}-data'
+    ports:
+      - '{{ postgres_port }}:5432'
+  register: postgres_container
+
+- name: Wait for PostgreSQL starts up
+  wait_for: port={{ postgres_port }} delay=5
+  when: postgres_container.changed
+
+- name: Ensure db client packages are installed
+  apt: name={{item}} state=present
+  with_items:
+    - postgresql
+    - libpq-dev
+    - python-psycopg2
+
+- name: Create {{ postgres_user }} user
+  postgresql_user: >
+    name={{ postgres_user }}
+    password={{ postgres_password }}
+    role_attr_flags=CREATEDB,SUPERUSER,LOGIN
+    login_host=localhost
+    port={{ postgres_port }}
+  when: postgres_user is defined and postgres_password is defined
+
+- name: Create {{ postgres_database }} database
+  postgresql_db: >
+    name={{ postgres_database }}
+    owner={{ postgres_user }}
+    login_host=localhost
+    port={{ postgres_port }}
+  when: postgres_database is defined and postgres_user is defined
