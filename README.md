@@ -33,6 +33,11 @@ postgres_password: db_password
 postgres_database: my_db
 ```
 
+Docker tuning can be done with this variables
+```
+container_memory_limit: 512m
+```
+
 Dependencies
 ------------
 

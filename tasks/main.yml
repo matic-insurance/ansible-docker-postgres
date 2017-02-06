@@ -16,6 +16,7 @@
     image: '{{ postgres_docker_image }}:{{ postgres_docker_image_tag }}'
     restart_policy: always
     state: started
+    memory: '{{ container_memory_limit | default(omit) }}'
     volumes_from:
       - '{{ postgres_container_name }}-data'
     ports:
