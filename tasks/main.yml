@@ -27,12 +27,24 @@
   wait_for: port={{ postgres_port }} delay=5
   when: postgres_container.changed
 
-- name: Ensure db client packages are installed
+# install pg tools when on debian-based systems
+- name: Ensure db client packages are installed (Debian/Ubuntu)
   apt: name={{item}} state=present
   with_items:
     - postgresql
     - libpq-dev
     - python-psycopg2
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# install pg tools when on Boot2Docker system
+- name: Ensure db client packages are installed (Boot2Docker)
+  block:
+    - name: Install pg dev packages
+      raw: tce-load -wi postgresql postgresql-dev
+    - name: Install psycopg2
+      raw: pip install psycopg2
+      become: true
+  when: ansible_distribution == 'Boot2Docker'
 
 - name: Create {{ postgres_user }} user
   postgresql_user: >
