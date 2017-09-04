@@ -23,7 +23,7 @@
       - '{{ postgres_port }}:5432'
   register: postgres_container
 
-- name: Wait for PostgreSQL starts up
+- name: Wait until PostgreSQL starts up
   wait_for: port={{ postgres_port }} delay=5
   when: postgres_container.changed
 
