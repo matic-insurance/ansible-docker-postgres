@@ -62,4 +62,5 @@
     owner={{ postgres_user }}
     login_host=localhost
     port={{ postgres_port }}
+    target={{ postgres_schema | default(omit) }}
   when: postgres_database is defined and postgres_user is defined
