@@ -21,6 +21,7 @@
       - '{{ postgres_container_name }}-data'
     ports:
       - '{{ postgres_port }}:5432'
+    networks: '{{ postgres_networks }}'
   register: postgres_container
 
 - name: Wait until PostgreSQL starts up
@@ -62,4 +63,6 @@
     owner={{ postgres_user }}
     login_host=localhost
     port={{ postgres_port }}
+    target={{ postgres_schema | default(omit) }}
+    state={{ (postgres_schema is defined) | ternary('restore', omit) }}
   when: postgres_database is defined and postgres_user is defined
