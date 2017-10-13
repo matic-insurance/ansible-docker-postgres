@@ -33,6 +33,9 @@ postgres_user: db_user
 postgres_password: db_password
 postgres_database: my_db
 postgres_schema: my_db_schema
+postgres_networks: [
+  { name: backend }
+]
 ```
 
 Docker tuning can be done with this variables

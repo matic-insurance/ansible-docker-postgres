@@ -21,6 +21,7 @@
       - '{{ postgres_container_name }}-data'
     ports:
       - '{{ postgres_port }}:5432'
+    networks: '{{ postgres_networks }}'
   register: postgres_container
 
 - name: Wait until PostgreSQL starts up
